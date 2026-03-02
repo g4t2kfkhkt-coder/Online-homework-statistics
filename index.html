@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>作业统计（14班 / 9班）</title>
+  <title>交作业统计（14班 / 9班）</title>
   <style>
     :root{
       --bg:#0b1220; --card:#111a2e; --muted:#93a4c7; --text:#eaf0ff;
       --line:rgba(255,255,255,.12);
       --good:#22c55e; --circle:#60a5fa; --tri:#a78bfa; --blank:#94a3b8;
+      --danger:#ef4444;
       --shadow: 0 10px 30px rgba(0,0,0,.35);
       --radius:16px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -71,6 +72,7 @@
     button:hover{background: rgba(255,255,255,.10)}
     button.danger{background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.35)}
     button.primary{background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.35)}
+    button.tiny{padding:6px 9px; font-size:12px; border-radius:10px;}
     .grid4{
       display:grid;
       grid-template-columns:1fr;
@@ -114,9 +116,9 @@
     .id{font-family:var(--mono); letter-spacing:.3px; color:var(--text)}
     .status{
       font-weight:1000;
-      font-size:18px;          /* 平板上更好点 */
+      font-size:18px;
       line-height:1;
-      padding:10px 0;          /* 点击面积更大 */
+      padding:10px 0;  /* 点击面积更大，平板更好用 */
       cursor:pointer;
       border-radius:10px;
       user-select:none;
@@ -169,7 +171,7 @@
       <div class="left">
         <div class="brand">
           <h1>交作业统计（两班 / 按日期）</h1>
-          <div class="sub">点击状态格：空白 → ✓ → ○ → △ → 空白（循环）。支持查看过往日期。</div>
+          <div class="sub">点击“作业状态”格：空白 → ✓ → ○ → △ → 空白（循环）。表名可点 ✎ 动态改名并保存。</div>
         </div>
 
         <div class="tabs" role="tablist" aria-label="班级切换">
@@ -185,14 +187,15 @@
             <input id="date" type="date"/>
           </div>
           <div>
-            <div class="small">快速跳转历史</div>
+            <div class="small">历史日期（当前班）</div>
             <select id="historySelect">
               <option value="">（选择已有记录日期）</option>
             </select>
           </div>
-          <button id="exportJson">导出JSON</button>
-          <button id="importJson">导入JSON</button>
-          <button id="clearDay" class="danger">清空当日(当前班)</button>
+          <button id="exportJson" class="tiny">导出JSON</button>
+          <button id="importJson" class="tiny">导入JSON</button>
+          <button id="resetTitles" class="tiny">恢复默认表名</button>
+          <button id="clearDay" class="tiny danger">清空当日(当前班)</button>
         </div>
       </div>
     </header>
@@ -201,7 +204,10 @@
       <div class="card">
         <div class="panelTitle">
           <div class="name">左上</div>
-          <div class="hint">表 1</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="hint" id="titleA">作业1</div>
+            <button type="button" class="tiny" data-edit-title="A" title="修改本班该表的名称">✎</button>
+          </div>
         </div>
         <div id="panelA"></div>
       </div>
@@ -209,7 +215,10 @@
       <div class="card">
         <div class="panelTitle">
           <div class="name">右上</div>
-          <div class="hint">表 2</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="hint" id="titleB">作业2</div>
+            <button type="button" class="tiny" data-edit-title="B" title="修改本班该表的名称">✎</button>
+          </div>
         </div>
         <div id="panelB"></div>
       </div>
@@ -217,7 +226,10 @@
       <div class="card">
         <div class="panelTitle">
           <div class="name">左下</div>
-          <div class="hint">表 3</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="hint" id="titleC">作业3</div>
+            <button type="button" class="tiny" data-edit-title="C" title="修改本班该表的名称">✎</button>
+          </div>
         </div>
         <div id="panelC"></div>
       </div>
@@ -225,7 +237,10 @@
       <div class="card">
         <div class="panelTitle">
           <div class="name">右下</div>
-          <div class="hint">表 4</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="hint" id="titleD">作业4</div>
+            <button type="button" class="tiny" data-edit-title="D" title="修改本班该表的名称">✎</button>
+          </div>
         </div>
         <div id="panelD"></div>
       </div>
@@ -235,17 +250,17 @@
       <div class="legendRow">
         <span class="pill"><b class="s-blank">空白</b><span class="sep">|</span>未交</span>
         <span class="pill"><b class="s-check">✓</b><span class="sep">|</span>已交</span>
-        <span class="pill"><b class="s-circle">○</b><span class="sep">|</span>优秀（可按你习惯理解）</span>
-        <span class="pill"><b class="s-tri">△</b><span class="sep">|</span>补交（可按你习惯理解）</span>
+        <span class="pill"><b class="s-circle">○</b><span class="sep">|</span>优秀（你也可按习惯理解）</span>
+        <span class="pill"><b class="s-tri">△</b><span class="sep">|</span>补交（你也可按习惯理解）</span>
       </div>
-      <div class="small">提示：数据默认存在本机浏览器。建议定期“导出JSON”备份，换设备后可“导入JSON”。</div>
+      <div class="small">提示：数据保存在本机浏览器（localStorage），刷新/关闭浏览器不会丢；建议定期导出 JSON 备份。[1](https://engage.cloud.microsoft/main/threads/eyJfdHlwZSI6IlRocmVhZCIsImlkIjoiMzcyMDAxMjQxOTQ0MDY0MCJ9)[2](https://engage.cloud.microsoft/main/threads/eyJfdHlwZSI6IlRocmVhZCIsImlkIjoiMzcyMDA0NjUzMTI4MDg5NiJ9)</div>
     </div>
 
     <!-- 导入 JSON 弹窗 -->
     <dialog id="dlgImport">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-          <h2 style="margin:0; font-size:16px;">导入JSON（覆盖或合并）</h2>
+          <h2 style="margin:0; font-size:16px;">导入JSON（合并到现有数据）</h2>
           <button id="closeImport">关闭</button>
         </div>
         <div class="small" style="margin-top:6px; line-height:1.5;">
@@ -265,23 +280,33 @@
   <script>
     /***********************
      * 数据结构（localStorage）
-     * key: hw_tracker_v3
+     * key: hw_tracker_v4
      * store = {
      *   classes: {
-     *     class14: { dates: { "2026-03-02": { A:{1:0..3}, B:{}, C:{}, D:{} } } },
-     *     class9:  { dates: { ... } }
+     *     class14: { sheetTitles:{A,B,C,D}, dates: { "YYYY-MM-DD": {A:{id:idx},B:{},C:{},D:{}} } },
+     *     class9:  { sheetTitles:{A,B,C,D}, dates: { ... } }
      *   }
      * }
      ************************/
-    const STORE_KEY = "hw_tracker_v3";
+    const STORE_KEY = "hw_tracker_v4";
     const STUDENTS = Array.from({length:50}, (_,i)=> String(i+1)); // 1..50
     const SHEETS = ["A","B","C","D"]; // 四个表：左上/右上/左下/右下
     const CYCLE = ["", "✓", "○", "△"]; // 空白 → ✓ → ○ → △ → 空白
     const CLASS_LABEL = { class14:"14班", class9:"9班" };
 
+    // 默认表名（你可以随时改默认值；网页上改名会覆盖默认）
+    const DEFAULT_TITLES = { A:"作业1", B:"作业2", C:"作业3", D:"作业4" };
+
     const elDate = document.getElementById("date");
     const elHistory = document.getElementById("historySelect");
     const tabs = document.querySelectorAll(".tab");
+
+    const titleEls = {
+      A: document.getElementById("titleA"),
+      B: document.getElementById("titleB"),
+      C: document.getElementById("titleC"),
+      D: document.getElementById("titleD")
+    };
 
     const panels = {
       A: document.getElementById("panelA"),
@@ -313,10 +338,17 @@
         saveStore(s);
       }
       if(!s.classes) s.classes = { class14:{dates:{}}, class9:{dates:{}} };
-      if(!s.classes.class14) s.classes.class14 = {dates:{}};
-      if(!s.classes.class9) s.classes.class9 = {dates:{}};
-      if(!s.classes.class14.dates) s.classes.class14.dates = {};
-      if(!s.classes.class9.dates) s.classes.class9.dates = {};
+      for(const cls of ["class14","class9"]){
+        if(!s.classes[cls]) s.classes[cls] = {dates:{}};
+        if(!s.classes[cls].dates) s.classes[cls].dates = {};
+        // 表名：每个班一套
+        if(!s.classes[cls].sheetTitles) s.classes[cls].sheetTitles = {...DEFAULT_TITLES};
+        for(const k of SHEETS){
+          if(typeof s.classes[cls].sheetTitles[k] !== "string"){
+            s.classes[cls].sheetTitles[k] = DEFAULT_TITLES[k];
+          }
+        }
+      }
       return s;
     }
 
@@ -332,7 +364,6 @@
       if(!c.dates[day]){
         c.dates[day] = { A:{}, B:{}, C:{}, D:{} };
       }else{
-        // 确保四张表都存在
         for(const k of SHEETS){
           if(!c.dates[day][k]) c.dates[day][k] = {};
         }
@@ -354,6 +385,11 @@
 
     function clearDay(cls, day){
       store.classes[cls].dates[day] = { A:{}, B:{}, C:{}, D:{} };
+      saveStore(store);
+    }
+
+    function resetTitles(cls){
+      store.classes[cls].sheetTitles = { ...DEFAULT_TITLES };
       saveStore(store);
     }
 
@@ -398,6 +434,12 @@
       store = ensureStore();
       const day = getDay();
 
+      // 渲染表名（按班级）
+      const titles = store.classes[currentClass].sheetTitles || DEFAULT_TITLES;
+      for(const k of SHEETS){
+        titleEls[k].textContent = titles[k] || DEFAULT_TITLES[k];
+      }
+
       // 渲染四个面板
       for(const sheet of SHEETS){
         panels[sheet].innerHTML = buildTableHTML(currentClass, day, sheet);
@@ -407,11 +449,10 @@
       const days = Object.keys(store.classes[currentClass].dates || {}).sort((a,b)=> b.localeCompare(a));
       const keep = elHistory.value;
       elHistory.innerHTML = `<option value="">（选择已有记录日期）</option>` + days.map(d=>`<option value="${d}">${d}</option>`).join("");
-      // 尽量保留当前选择
       if(keep && days.includes(keep)) elHistory.value = keep;
     }
 
-    // ===== 事件：班级切换 =====
+    // ===== 班级切换 =====
     tabs.forEach(btn=>{
       btn.addEventListener("click", ()=>{
         tabs.forEach(x=>x.classList.remove("active"));
@@ -421,7 +462,7 @@
       });
     });
 
-    // ===== 事件：日期与历史 =====
+    // ===== 日期与历史 =====
     elDate.value = todayISO();
     elDate.addEventListener("change", ()=> render());
     elHistory.addEventListener("change", ()=>{
@@ -431,7 +472,7 @@
       }
     });
 
-    // ===== 事件：点击状态格（事件委托，四表通用）=====
+    // ===== 点击状态格（事件委托）=====
     document.addEventListener("click", (e)=>{
       const t = e.target.closest?.(".status");
       if(!t) return;
@@ -443,11 +484,27 @@
       const next = (idx + 1) % CYCLE.length; // 0->1->2->3->0
       setStatusIndex(cls, day, sheet, student, next);
 
-      // 局部更新（不用整页重绘也能快）
+      // 局部更新
       t.dataset.idx = String(next);
       t.textContent = CYCLE[next];
       t.classList.remove("s-blank","s-check","s-circle","s-tri");
       t.classList.add(next===0 ? "s-blank" : next===1 ? "s-check" : next===2 ? "s-circle" : "s-tri");
+    });
+
+    // ===== 动态改表名（每个班独立保存）=====
+    document.addEventListener("click", (e)=>{
+      const btn = e.target.closest?.("[data-edit-title]");
+      if(!btn) return;
+      const sheet = btn.getAttribute("data-edit-title"); // A/B/C/D
+      const titles = store.classes[currentClass].sheetTitles || (store.classes[currentClass].sheetTitles = {...DEFAULT_TITLES});
+      const current = titles[sheet] || DEFAULT_TITLES[sheet];
+
+      const next = prompt(`请输入【${CLASS_LABEL[currentClass]}】的表名（${sheet}）：`, current);
+      if(next === null) return; // 取消
+      const trimmed = next.trim();
+      titles[sheet] = trimmed ? trimmed : DEFAULT_TITLES[sheet];
+      saveStore(store);
+      render();
     });
 
     // ===== 清空当日（当前班）=====
@@ -457,7 +514,13 @@
       render();
     });
 
-    // ===== 导出 JSON（全部班级/全部日期）=====
+    // ===== 恢复默认表名（当前班）=====
+    document.getElementById("resetTitles").addEventListener("click", ()=>{
+      resetTitles(currentClass);
+      render();
+    });
+
+    // ===== 导出/导入 JSON =====
     function download(filename, content, type="application/json;charset=utf-8"){
       const blob = new Blob([content], {type});
       const url = URL.createObjectURL(blob);
@@ -471,11 +534,9 @@
 
     document.getElementById("exportJson").addEventListener("click", ()=>{
       const payload = ensureStore();
-      const name = `作业统计_两班_全部日期.json`;
-      download(name, JSON.stringify(payload, null, 2));
+      download(`作业统计_两班_全部日期.json`, JSON.stringify(payload, null, 2));
     });
 
-    // ===== 导入 JSON（合并）=====
     const dlg = document.getElementById("dlgImport");
     document.getElementById("importJson").addEventListener("click", ()=>{
       document.getElementById("importBox").value = "";
@@ -489,23 +550,38 @@
         if(!text) return;
         const incoming = JSON.parse(text);
 
-        // 合并逻辑：classes -> class14/class9 -> dates -> day -> A/B/C/D -> studentId
         const base = ensureStore();
+
+        // 合并 classes -> dates/sheetTitles
         if(incoming?.classes){
           for(const cls of ["class14","class9"]){
             const inC = incoming.classes[cls];
-            if(!inC?.dates) continue;
-            if(!base.classes[cls]) base.classes[cls] = {dates:{}};
-            if(!base.classes[cls].dates) base.classes[cls].dates = {};
-            for(const day of Object.keys(inC.dates)){
-              if(!base.classes[cls].dates[day]) base.classes[cls].dates[day] = {A:{},B:{},C:{},D:{}};
-              const dayRec = inC.dates[day] || {};
-              for(const sheet of SHEETS){
-                if(!base.classes[cls].dates[day][sheet]) base.classes[cls].dates[day][sheet] = {};
-                const inSheet = dayRec[sheet] || {};
-                for(const sid of Object.keys(inSheet)){
-                  const v = inSheet[sid];
-                  if(typeof v === "number") base.classes[cls].dates[day][sheet][sid] = v;
+            if(!inC) continue;
+
+            // 合并表名
+            if(inC.sheetTitles){
+              base.classes[cls].sheetTitles = {
+                ...base.classes[cls].sheetTitles,
+                ...inC.sheetTitles
+              };
+              // 防止缺字段
+              for(const k of SHEETS){
+                if(typeof base.classes[cls].sheetTitles[k] !== "string") base.classes[cls].sheetTitles[k] = DEFAULT_TITLES[k];
+              }
+            }
+
+            // 合并日期数据
+            if(inC.dates){
+              for(const day of Object.keys(inC.dates)){
+                if(!base.classes[cls].dates[day]) base.classes[cls].dates[day] = {A:{},B:{},C:{},D:{}};
+                const dayRec = inC.dates[day] || {};
+                for(const sheet of SHEETS){
+                  if(!base.classes[cls].dates[day][sheet]) base.classes[cls].dates[day][sheet] = {};
+                  const inSheet = dayRec[sheet] || {};
+                  for(const sid of Object.keys(inSheet)){
+                    const v = inSheet[sid];
+                    if(typeof v === "number") base.classes[cls].dates[day][sheet][sid] = v;
+                  }
                 }
               }
             }
