@@ -233,6 +233,65 @@
       font-family:var(--mono);
       font-size:12px;
     }
+
+    /* 新增：总表样式 */
+    .summary-card{
+      margin-bottom: 16px;
+      border: 2px solid var(--primary-soft);
+    }
+    .summary-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+      border-bottom:1px solid var(--line);
+      padding-bottom:8px;
+    }
+    .summary-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .summary-col{
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 10px;
+      border: 1px solid var(--line);
+    }
+    .summary-col h4{
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: var(--primary);
+      display:flex;
+      justify-content:space-between;
+    }
+    .summary-list{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      min-height: 30px;
+    }
+    .student-tag{
+      background: #fff;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .student-tag:hover{
+      background: var(--danger);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .empty-hint{
+      color: var(--muted);
+      font-size: 12px;
+      font-style: italic;
+    }
   </style>
 </head>
 
@@ -271,6 +330,23 @@
         </div>
       </div>
     </header>
+
+    <!-- ✅ 新增：未交作业统计总表 -->
+    <div class="card summary-card">
+      <div class="summary-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-weight:900; font-size:16px; color:var(--primary);">📊 未交作业统计总表</span>
+          <span class="small" style="color:var(--muted)">仅统计非默认表名的作业</span>
+        </div>
+        <button id="btnRefreshSummary" class="primary tiny">🔄 刷新统计数据</button>
+      </div>
+      <div id="summaryContainer" class="summary-grid">
+        <div class="empty-hint" style="grid-column: 1/-1; text-align:center; padding:20px;">
+          点击上方“刷新统计数据”按钮，开始统计今日未交作业名单。<br>
+          点击名单中的学号可直接标记为“已交”。
+        </div>
+      </div>
+    </div>
 
     <div class="grid4">
       <div class="card">
@@ -366,7 +442,7 @@
     const CYCLE = ["", "✓", "○", "△"]; // 空白 → ✓ → ○ → △ → 空白
     const CLASS_LABEL = { class14:"14 班", class9:"9 班" };
 
-    // 默认表名
+    // 默认表名（用于过滤统计）
     const DEFAULT_TITLES = { A:"作业 1", B:"作业 2", C:"作业 3", D:"作业 4" };
 
     const elDate = document.getElementById("date");
@@ -386,6 +462,9 @@
       C: document.getElementById("panelC"),
       D: document.getElementById("panelD")
     };
+    
+    const summaryContainer = document.getElementById("summaryContainer");
+    const btnRefreshSummary = document.getElementById("btnRefreshSummary");
 
     function todayISO(){
       const d = new Date();
@@ -413,7 +492,6 @@
       for(const cls of ["class14","class9"]){
         if(!s.classes[cls]) s.classes[cls] = {dates:{}};
         if(!s.classes[cls].dates) s.classes[cls].dates = {};
-        // 兼容旧数据：如果以前有 sheetTitles 也不强制删除（不再使用）
       }
       return s;
     }
@@ -425,7 +503,6 @@
       return elDate.value || todayISO();
     }
 
-    // ✅ 关键：按“班级 + 日期”确保记录存在，并在每天记录里存 titles
     function ensureDayRecord(cls, day){
       const c = store.classes[cls];
       if(!c.dates[day]){
@@ -447,7 +524,7 @@
     function getStatusIndex(cls, day, sheet, studentId){
       const rec = ensureDayRecord(cls, day);
       const v = rec[sheet][studentId];
-      return (typeof v === "number") ? v : 0; // 0=空白
+      return (typeof v === "number") ? v : 0; 
     }
 
     function setStatusIndex(cls, day, sheet, studentId, idx){
@@ -468,7 +545,6 @@
     }
 
     function buildTableHTML(cls, day, sheet){
-      // ✅ 修改处：将 max-height 从 520px 调整为 850px，确保 10 行数据无需滚动
       let html = `<div style="overflow:auto; max-height:850px;">`;
       html += `<table aria-label="${CLASS_LABEL[cls]} ${day} 表${sheet}">`;
       html += `<thead><tr>`;
@@ -504,11 +580,77 @@
       return html;
     }
 
+    // ✅ 新增：渲染统计总表
+    function renderSummaryTable(){
+      const day = getDay();
+      const dayRec = ensureDayRecord(currentClass, day);
+      const titles = dayRec.titles || DEFAULT_TITLES;
+      
+      let html = '';
+      let hasData = false;
+
+      SHEETS.forEach(sheet => {
+        const title = titles[sheet] || DEFAULT_TITLES[sheet];
+        
+        // ✅ 过滤逻辑：如果是默认表名，跳过统计
+        if (DEFAULT_TITLES[sheet] === title) {
+          return; 
+        }
+
+        const missingStudents = [];
+        for(let i=1; i<=50; i++){
+          const sid = String(i);
+          const status = getStatusIndex(currentClass, day, sheet, sid);
+          if(status === 0){ // 0 代表空白/未交
+            missingStudents.push(sid);
+          }
+        }
+
+        if(missingStudents.length > 0 || title) {
+           hasData = true;
+           html += `
+            <div class="summary-col">
+              <h4>${title} <span style="font-size:12px; color:var(--danger)">${missingStudents.length}人未交</span></h4>
+              <div class="summary-list">
+                ${missingStudents.length === 0 
+                  ? '<span class="empty-hint">全员已交 🎉</span>' 
+                  : missingStudents.map(sid => `<span class="student-tag" onclick="markAsDone('${sheet}', '${sid}')">${sid}</span>`).join('')
+                }
+              </div>
+            </div>
+           `;
+        }
+      });
+
+      if(!hasData){
+        summaryContainer.innerHTML = `<div class="empty-hint" style="grid-column: 1/-1; text-align:center; padding:20px;">今日所有表格均为默认名称（作业 1-4），未进行统计。<br>请点击上方 ✎ 修改表名后再次刷新。</div>`;
+      } else {
+        summaryContainer.innerHTML = html;
+      }
+    }
+
+    // ✅ 新增：全局函数，供 HTML onclick 调用
+    window.markAsDone = function(sheet, studentId){
+      const day = getDay();
+      // 设置为 1 (✓)
+      setStatusIndex(currentClass, day, sheet, studentId, 1);
+      
+      // 1. 刷新下方表格对应格子
+      const panel = panels[sheet];
+      if(panel){
+        // 简单重绘整个面板虽然粗暴但能保证状态同步，或者只更新 DOM
+        // 这里为了代码简洁和状态绝对同步，重新渲染该面板
+        panel.innerHTML = buildTableHTML(currentClass, day, sheet);
+      }
+      
+      // 2. 刷新上方总表（移除该学号）
+      renderSummaryTable();
+    };
+
     function render(){
       store = ensureStore();
       const day = getDay();
 
-      // ✅ 表名从“当天记录 titles"读取
       const dayRec = ensureDayRecord(currentClass, day);
       const titles = dayRec.titles || DEFAULT_TITLES;
       for(const k of SHEETS){
@@ -523,6 +665,10 @@
       const keep = elHistory.value;
       elHistory.innerHTML = `<option value="">（选择已有记录日期）</option>` + days.map(d=>`<option value="${d}">${d}</option>`).join("");
       if(keep && days.includes(keep)) elHistory.value = keep;
+      
+      // 注意：render() 不自动调用 renderSummaryTable()，必须手动点按钮
+      // 但为了体验，如果总表已经显示过内容，切换日期时最好清空或提示刷新
+      summaryContainer.innerHTML = `<div class="empty-hint" style="grid-column: 1/-1; text-align:center; padding:20px;">日期已切换，请点击上方“刷新统计数据”按钮。</div>`;
     }
 
     // ===== 班级切换 =====
@@ -561,9 +707,15 @@
       t.textContent = CYCLE[next];
       t.classList.remove("s-blank","s-check","s-circle","s-tri");
       t.classList.add(next===0 ? "s-blank" : next===1 ? "s-check" : next===2 ? "s-circle" : "s-tri");
+      
+      // ✅ 联动：如果下方变动，且总表有内容，自动刷新总表
+      // 检查总表是否处于“已激活”状态（即不是初始提示语）
+      if(!summaryContainer.querySelector('.empty-hint') || summaryContainer.querySelector('.student-tag')){
+         renderSummaryTable();
+      }
     });
 
-    // ===== 动态改表名（按“当天 + 班级”独立保存）=====
+    // ===== 动态改表名 =====
     document.addEventListener("click", (e)=>{
       const btn = e.target.closest?.("[data-edit-title]");
       if(!btn) return;
@@ -580,20 +732,27 @@
       titles[sheet] = trimmed ? trimmed : DEFAULT_TITLES[sheet];
       saveStore(store);
       render();
+      // 改完表名后，提示用户刷新统计
+      summaryContainer.innerHTML = `<div class="empty-hint" style="grid-column: 1/-1; text-align:center; padding:20px;">表名已更新，请点击上方“刷新统计数据”按钮重新统计。</div>`;
     });
 
-    // ===== 清空当日（当前班）=====
+    // ===== 清空当日 =====
     document.getElementById("clearDay").addEventListener("click", ()=>{
       const day = getDay();
       clearDay(currentClass, day);
       render();
     });
 
-    // ===== 恢复默认表名（当前班的当日）=====
+    // ===== 恢复默认表名 =====
     document.getElementById("resetTitles").addEventListener("click", ()=>{
       const day = getDay();
       resetTitlesForDay(currentClass, day);
       render();
+    });
+
+    // ===== 刷新统计按钮 =====
+    btnRefreshSummary.addEventListener("click", ()=>{
+      renderSummaryTable();
     });
 
     // ===== 导出/导入 JSON =====
@@ -638,7 +797,6 @@
                 if(!base.classes[cls].dates[day]) base.classes[cls].dates[day] = {A:{},B:{},C:{},D:{}, titles:{...DEFAULT_TITLES}};
                 const dayRec = inC.dates[day] || {};
 
-                // ✅ 合并当日 titles
                 if(dayRec.titles){
                   if(!base.classes[cls].dates[day].titles) base.classes[cls].dates[day].titles = {...DEFAULT_TITLES};
                   base.classes[cls].dates[day].titles = {
@@ -652,7 +810,6 @@
                   }
                 }
 
-                // 合并状态数据
                 for(const sheet of SHEETS){
                   if(!base.classes[cls].dates[day][sheet]) base.classes[cls].dates[day][sheet] = {};
                   const inSheet = dayRec[sheet] || {};
