@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>交作业统计（14班 / 9班）</title>
+  <title>交作业统计（14 班 / 9 班）</title>
 
   <style>
     /* =========================
@@ -247,8 +247,8 @@
         </div>
 
         <div class="tabs" role="tablist" aria-label="班级切换">
-          <button class="tab active" data-class="class14" role="tab">14班</button>
-          <button class="tab" data-class="class9" role="tab">9班</button>
+          <button class="tab active" data-class="class14" role="tab">14 班</button>
+          <button class="tab" data-class="class9" role="tab">9 班</button>
         </div>
       </div>
 
@@ -264,10 +264,10 @@
               <option value="">（选择已有记录日期）</option>
             </select>
           </div>
-          <button id="exportJson" class="tiny">导出JSON</button>
-          <button id="importJson" class="tiny">导入JSON</button>
-          <button id="resetTitles" class="tiny">恢复默认表名(当日)</button>
-          <button id="clearDay" class="tiny danger">清空当日(当前班)</button>
+          <button id="exportJson" class="tiny">导出 JSON</button>
+          <button id="importJson" class="tiny">导入 JSON</button>
+          <button id="resetTitles" class="tiny">恢复默认表名 (当日)</button>
+          <button id="clearDay" class="tiny danger">清空当日 (当前班)</button>
         </div>
       </div>
     </header>
@@ -277,7 +277,7 @@
         <div class="panelTitle">
           <div class="name">左上</div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <div class="hint" id="titleA">作业1</div>
+            <div class="hint" id="titleA">作业 1</div>
             <button type="button" class="tiny" data-edit-title="A" title="修改本班该日期该表的名称">✎</button>
           </div>
         </div>
@@ -288,7 +288,7 @@
         <div class="panelTitle">
           <div class="name">右上</div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <div class="hint" id="titleB">作业2</div>
+            <div class="hint" id="titleB">作业 2</div>
             <button type="button" class="tiny" data-edit-title="B" title="修改本班该日期该表的名称">✎</button>
           </div>
         </div>
@@ -299,7 +299,7 @@
         <div class="panelTitle">
           <div class="name">左下</div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <div class="hint" id="titleC">作业3</div>
+            <div class="hint" id="titleC">作业 3</div>
             <button type="button" class="tiny" data-edit-title="C" title="修改本班该日期该表的名称">✎</button>
           </div>
         </div>
@@ -310,7 +310,7 @@
         <div class="panelTitle">
           <div class="name">右下</div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <div class="hint" id="titleD">作业4</div>
+            <div class="hint" id="titleD">作业 4</div>
             <button type="button" class="tiny" data-edit-title="D" title="修改本班该日期该表的名称">✎</button>
           </div>
         </div>
@@ -332,7 +332,7 @@
     <dialog id="dlgImport">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-          <h2 style="margin:0; font-size:16px;">导入JSON（合并到现有数据）</h2>
+          <h2 style="margin:0; font-size:16px;">导入 JSON（合并到现有数据）</h2>
           <button id="closeImport">关闭</button>
         </div>
         <div class="small" style="margin-top:6px; line-height:1.5;">
@@ -364,10 +364,10 @@
     const STUDENTS = Array.from({length:50}, (_,i)=> String(i+1)); // 1..50
     const SHEETS = ["A","B","C","D"]; // 四个表：左上/右上/左下/右下
     const CYCLE = ["", "✓", "○", "△"]; // 空白 → ✓ → ○ → △ → 空白
-    const CLASS_LABEL = { class14:"14班", class9:"9班" };
+    const CLASS_LABEL = { class14:"14 班", class9:"9 班" };
 
     // 默认表名
-    const DEFAULT_TITLES = { A:"作业1", B:"作业2", C:"作业3", D:"作业4" };
+    const DEFAULT_TITLES = { A:"作业 1", B:"作业 2", C:"作业 3", D:"作业 4" };
 
     const elDate = document.getElementById("date");
     const elHistory = document.getElementById("historySelect");
@@ -425,7 +425,7 @@
       return elDate.value || todayISO();
     }
 
-    // ✅ 关键：按“班级+日期”确保记录存在，并在每天记录里存 titles
+    // ✅ 关键：按“班级 + 日期”确保记录存在，并在每天记录里存 titles
     function ensureDayRecord(cls, day){
       const c = store.classes[cls];
       if(!c.dates[day]){
@@ -468,7 +468,8 @@
     }
 
     function buildTableHTML(cls, day, sheet){
-      let html = `<div style="overflow:auto; max-height:520px;">`;
+      // ✅ 修改处：将 max-height 从 520px 调整为 850px，确保 10 行数据无需滚动
+      let html = `<div style="overflow:auto; max-height:850px;">`;
       html += `<table aria-label="${CLASS_LABEL[cls]} ${day} 表${sheet}">`;
       html += `<thead><tr>`;
       for(let g=0; g<5; g++){
@@ -507,7 +508,7 @@
       store = ensureStore();
       const day = getDay();
 
-      // ✅ 表名从“当天记录 titles”读取
+      // ✅ 表名从“当天记录 titles"读取
       const dayRec = ensureDayRecord(currentClass, day);
       const titles = dayRec.titles || DEFAULT_TITLES;
       for(const k of SHEETS){
@@ -562,7 +563,7 @@
       t.classList.add(next===0 ? "s-blank" : next===1 ? "s-check" : next===2 ? "s-circle" : "s-tri");
     });
 
-    // ===== 动态改表名（按“当天+班级”独立保存）=====
+    // ===== 动态改表名（按“当天 + 班级”独立保存）=====
     document.addEventListener("click", (e)=>{
       const btn = e.target.closest?.("[data-edit-title]");
       if(!btn) return;
