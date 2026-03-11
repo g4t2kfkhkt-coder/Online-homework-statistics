@@ -292,6 +292,131 @@
       font-size: 12px;
       font-style: italic;
     }
+
+    /* 确认弹窗样式 */
+    .confirm-dialog {
+      border: none;
+      border-radius: 16px;
+      padding: 0;
+      background: transparent;
+      width: min(500px, 90vw);
+    }
+    .confirm-dialog .card {
+      margin: 0;
+    }
+    .dialog-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    /* 每周统计视图样式 */
+    .weekly-view {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .weekly-class-block {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+    .weekly-class-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .weekly-table-wrapper {
+      overflow-x: auto;
+      max-height: 600px;
+      overflow-y: auto;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+    .weekly-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      min-width: 800px;
+    }
+    .weekly-table th, .weekly-table td {
+      padding: 10px 8px;
+      text-align: left;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      white-space: nowrap;
+    }
+    .weekly-table th {
+      background: #f5f6f7;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .weekly-table td:first-child {
+      font-weight: 700;
+      color: var(--text);
+      background: #fff;
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      border-right: 1px solid var(--line);
+      width: 50px;
+      text-align: center;
+    }
+    .weekly-table th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 15;
+      background: #f5f6f7;
+      border-right: 1px solid var(--line);
+      text-align: center;
+    }
+    .missing-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .missing-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: #fff;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .missing-tag:hover {
+      background: var(--danger);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .missing-tag .date-label {
+      font-size: 10px;
+      opacity: 0.8;
+      background: rgba(0,0,0,0.1);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+    .no-data-row td {
+      text-align: center;
+      color: var(--muted);
+      padding: 20px;
+    }
+
   </style>
 </head>
 
@@ -308,6 +433,8 @@
         <div class="tabs" role="tablist" aria-label="班级切换">
           <button class="tab active" data-class="class14" role="tab">14 班</button>
           <button class="tab" data-class="class9" role="tab">9 班</button>
+          <!-- 新增：每周统计选项卡 -->
+          <button class="tab" data-class="weekly" role="tab">每周统计</button>
         </div>
       </div>
 
@@ -331,8 +458,8 @@
       </div>
     </header>
 
-    <!-- ✅ 新增：未交作业统计总表 -->
-    <div class="card summary-card">
+    <!-- ✅ 新增：未交作业统计总表 (仅在非每周视图显示) -->
+    <div class="card summary-card" id="summaryCardContainer">
       <div class="summary-header">
         <div style="display:flex; align-items:center; gap:8px;">
           <span style="font-weight:900; font-size:16px; color:var(--primary);">📊 未交作业统计总表</span>
@@ -348,7 +475,8 @@
       </div>
     </div>
 
-    <div class="grid4">
+    <!-- 日常视图网格 -->
+    <div class="grid4" id="dailyGrid">
       <div class="card">
         <div class="panelTitle">
           <div class="name">左上</div>
@@ -394,6 +522,11 @@
       </div>
     </div>
 
+    <!-- 新增：每周统计视图容器 -->
+    <div id="weeklyPanel" class="weekly-view" style="display:none;">
+      <!-- 由 JS 动态填充 -->
+    </div>
+
     <div class="footerLegend card">
       <div class="legendRow">
         <span class="pill"><b class="s-blank">空白</b><span class="sep">|</span>未交</span>
@@ -423,6 +556,24 @@
       </div>
     </dialog>
 
+    <!-- 清空当日确认弹窗 -->
+    <dialog id="dlgClearConfirm" class="confirm-dialog">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+          <h2 style="margin:0; font-size:16px; color:var(--danger);">⚠️ 确认清空当日记录</h2>
+          <button id="closeClearConfirm" style="font-size:18px;">×</button>
+        </div>
+        <div style="margin-top:12px; line-height:1.6;">
+          <p>您确定要清空 <strong id="confirmClassName">14 班</strong> 的 <strong id="confirmDate">今天</strong> 的所有记录吗？</p>
+          <p style="color:var(--danger);">此操作不可撤销，清空后该日的所有作业状态将丢失！</p>
+        </div>
+        <div class="dialog-actions">
+          <button id="cancelClear" class="tiny">取消</button>
+          <button id="confirmClear" class="danger tiny">确认清空</button>
+        </div>
+      </div>
+    </dialog>
+
   </div>
 
   <script>
@@ -434,7 +585,6 @@
      *     class14: { dates: { "YYYY-MM-DD": {A:{},B:{},C:{},D:{}, titles:{A,B,C,D}} } },
      *     class9:  { dates: { ... } }
      *   }
-     * }
      ************************/
     const STORE_KEY = "hw_tracker_v4";
     const STUDENTS = Array.from({length:50}, (_,i)=> String(i+1)); // 1..50
@@ -464,7 +614,10 @@
     };
     
     const summaryContainer = document.getElementById("summaryContainer");
+    const summaryCardContainer = document.getElementById("summaryCardContainer");
     const btnRefreshSummary = document.getElementById("btnRefreshSummary");
+    const dailyGrid = document.getElementById("dailyGrid");
+    const weeklyPanel = document.getElementById("weeklyPanel");
 
     function todayISO(){
       const d = new Date();
@@ -638,14 +791,189 @@
       // 1. 刷新下方表格对应格子
       const panel = panels[sheet];
       if(panel){
-        // 简单重绘整个面板虽然粗暴但能保证状态同步，或者只更新 DOM
-        // 这里为了代码简洁和状态绝对同步，重新渲染该面板
         panel.innerHTML = buildTableHTML(currentClass, day, sheet);
       }
       
       // 2. 刷新上方总表（移除该学号）
       renderSummaryTable();
     };
+
+    // ✅ 新增：每周统计渲染逻辑（智能追溯）
+    function renderWeekly(){
+      weeklyPanel.innerHTML = '';
+      
+      ['class9', 'class14'].forEach(cls => {
+        const block = document.createElement('div');
+        block.className = 'weekly-class-block';
+        
+        const title = document.createElement('div');
+        title.className = 'weekly-class-title';
+        title.textContent = `${CLASS_LABEL[cls]} 近 7 个有效未交日统计`;
+        block.appendChild(title);
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'weekly-table-wrapper';
+        
+        const table = document.createElement('table');
+        table.className = 'weekly-table';
+        
+        // 1. 收集所有有记录的日期，并按时间倒序排列
+        const allDates = Object.keys(store.classes[cls]?.dates || {}).sort((a,b) => b.localeCompare(a));
+        
+        // 2. 筛选出“有效日期”：至少有一个人、在一个非默认表名的作业中是“空白”状态
+        const validDates = [];
+        const dateDetails = {}; // 缓存每一天的详细缺失数据，避免重复计算
+
+        for(const date of allDates){
+          if(validDates.length >= 7) break; // 凑齐 7 天就停止
+
+          const dayRec = store.classes[cls].dates[date];
+          if(!dayRec) continue;
+
+          let dayHasMissing = false;
+          const dayMissingMap = {}; // { studentId: [{sheet, title, date}] }
+
+          // 检查这一天是否有未交记录
+          for(let i=1; i<=50; i++){
+            const sid = String(i);
+            const missingList = [];
+            
+            SHEETS.forEach(sheet => {
+              const title = dayRec.titles?.[sheet] || DEFAULT_TITLES[sheet];
+              // 只统计非默认表名
+              if(title === DEFAULT_TITLES[sheet]) return;
+              
+              const status = getStatusIndex(cls, date, sheet, sid);
+              if(status === 0){ // 空白
+                missingList.push({sheet, title, date});
+              }
+            });
+
+            if(missingList.length > 0){
+              dayHasMissing = true;
+              dayMissingMap[sid] = missingList;
+            }
+          }
+
+          if(dayHasMissing){
+            validDates.push(date);
+            dateDetails[date] = dayMissingMap;
+          }
+        }
+
+        // 如果没有找到任何有效日期
+        if(validDates.length === 0){
+          const divEmpty = document.createElement('div');
+          divEmpty.className = 'no-data-row';
+          divEmpty.style.padding = '20px';
+          divEmpty.style.textAlign = 'center';
+          divEmpty.style.color = 'var(--muted)';
+          divEmpty.textContent = '🎉 恭喜！近期没有未交作业记录（或所有作业均为默认名称）。';
+          block.appendChild(divEmpty);
+          weeklyPanel.appendChild(block);
+          return;
+        }
+
+        // 反转数组，让最早的日期在左边，最近的在右边
+        validDates.reverse();
+
+        // 表头
+        const thead = document.createElement('thead');
+        const trHead = document.createElement('tr');
+        const thId = document.createElement('th');
+        thId.textContent = '学号';
+        trHead.appendChild(thId);
+        
+        validDates.forEach(date => {
+          const d = new Date(date + 'T00:00:00'); // 防止时区问题
+          const th = document.createElement('th');
+          const m = d.getMonth()+1;
+          const day = d.getDate();
+          const w = ['日','一','二','三','四','五','六'][d.getDay()];
+          th.textContent = `${m}/${day} (${w})`;
+          trHead.appendChild(th);
+        });
+        thead.appendChild(trHead);
+        table.appendChild(thead);
+
+        // 表体
+        const tbody = document.createElement('tbody');
+        let hasAnyData = false;
+
+        for(let i=1; i<=50; i++){
+          const sid = String(i);
+          const tr = document.createElement('tr');
+          
+          const tdId = document.createElement('td');
+          tdId.textContent = sid;
+          tr.appendChild(tdId);
+
+          let rowHasMissing = false;
+
+          validDates.forEach(date => {
+            const td = document.createElement('td');
+            const dayMissingMap = dateDetails[date];
+            
+            if(!dayMissingMap || !dayMissingMap[sid]){
+              // 这一天该学生没有未交记录（要么全交了，要么这天没记录）
+              // 由于我们只选了有未交记录的日期，这里显示全交标记
+              td.innerHTML = '<span style="color:var(--good); font-size:12px;">✔</span>';
+            } else {
+              rowHasMissing = true;
+              const container = document.createElement('div');
+              container.className = 'missing-tags';
+              dayMissingMap[sid].forEach(item => {
+                const tag = document.createElement('span');
+                tag.className = 'missing-tag';
+                tag.title = `点击前往 ${item.date} 标记为已交`;
+                tag.innerHTML = `${item.title} <span class="date-label">${item.date.slice(5)}</span>`;
+                tag.onclick = () => handleWeeklyClick(cls, item.date, item.sheet, sid);
+                container.appendChild(tag);
+              });
+              td.appendChild(container);
+            }
+            tr.appendChild(td);
+          });
+
+          if(rowHasMissing){
+            hasAnyData = true;
+            tbody.appendChild(tr);
+          }
+        }
+
+        if(!hasAnyData){
+          const trEmpty = document.createElement('tr');
+          const tdEmpty = document.createElement('td');
+          tdEmpty.colSpan = validDates.length + 1;
+          tdEmpty.className = 'no-data-row';
+          tdEmpty.textContent = '暂无符合条件的未交记录。';
+          trEmpty.appendChild(tdEmpty);
+          tbody.appendChild(trEmpty);
+        }
+
+        table.appendChild(tbody);
+        wrapper.appendChild(table);
+        block.appendChild(wrapper);
+        weeklyPanel.appendChild(block);
+      });
+    }
+
+    // ✅ 处理周视图表单点击
+    function handleWeeklyClick(cls, date, sheet, studentId){
+      // 1. 切换回日常视图
+      switchTab('daily', cls);
+      
+      // 2. 设置日期
+      elDate.value = date;
+      render(); // 重新渲染日常视图
+      
+      // 3. 标记为已交
+      setStatusIndex(cls, date, sheet, studentId, 1);
+      
+      // 4. 刷新界面
+      panels[sheet].innerHTML = buildTableHTML(cls, date, sheet);
+      renderSummaryTable();
+    }
 
     function render(){
       store = ensureStore();
@@ -666,26 +994,55 @@
       elHistory.innerHTML = `<option value="">（选择已有记录日期）</option>` + days.map(d=>`<option value="${d}">${d}</option>`).join("");
       if(keep && days.includes(keep)) elHistory.value = keep;
       
-      // 注意：render() 不自动调用 renderSummaryTable()，必须手动点按钮
-      // 但为了体验，如果总表已经显示过内容，切换日期时最好清空或提示刷新
       summaryContainer.innerHTML = `<div class="empty-hint" style="grid-column: 1/-1; text-align:center; padding:20px;">日期已切换，请点击上方“刷新统计数据”按钮。</div>`;
     }
 
-    // ===== 班级切换 =====
+    // ===== 班级/视图切换 =====
+    function switchTab(mode, cls){
+      tabs.forEach(x=>x.classList.remove("active"));
+      
+      if(mode === 'weekly'){
+        // 找到每周统计的 tab
+        const weeklyTab = document.querySelector('[data-class="weekly"]');
+        if(weeklyTab) weeklyTab.classList.add("active");
+        
+        dailyGrid.style.display = 'none';
+        summaryCardContainer.style.display = 'none';
+        weeklyPanel.style.display = 'flex';
+        
+        renderWeekly();
+      } else {
+        // 日常模式
+        const targetTab = document.querySelector(`[data-class="${cls}"]`);
+        if(targetTab) targetTab.classList.add("active");
+        
+        currentClass = cls;
+        dailyGrid.style.display = 'grid';
+        summaryCardContainer.style.display = 'block';
+        weeklyPanel.style.display = 'none';
+        
+        render();
+      }
+    }
+
     tabs.forEach(btn=>{
       btn.addEventListener("click", ()=>{
-        tabs.forEach(x=>x.classList.remove("active"));
-        btn.classList.add("active");
-        currentClass = btn.dataset.class;
-        render();
+        const cls = btn.dataset.class;
+        if(cls === 'weekly'){
+          switchTab('weekly', null);
+        } else {
+          switchTab('daily', cls);
+        }
       });
     });
 
     // ===== 日期与历史 =====
     elDate.value = todayISO();
-    elDate.addEventListener("change", ()=> render());
+    elDate.addEventListener("change", ()=> {
+      if(currentClass !== 'weekly') render();
+    });
     elHistory.addEventListener("change", ()=>{
-      if(elHistory.value){
+      if(elHistory.value && currentClass !== 'weekly'){
         elDate.value = elHistory.value;
         render();
       }
@@ -708,10 +1065,10 @@
       t.classList.remove("s-blank","s-check","s-circle","s-tri");
       t.classList.add(next===0 ? "s-blank" : next===1 ? "s-check" : next===2 ? "s-circle" : "s-tri");
       
-      // ✅ 联动：如果下方变动，且总表有内容，自动刷新总表
-      // 检查总表是否处于“已激活”状态（即不是初始提示语）
-      if(!summaryContainer.querySelector('.empty-hint') || summaryContainer.querySelector('.student-tag')){
-         renderSummaryTable();
+      if(currentClass !== 'weekly'){
+        if(!summaryContainer.querySelector('.empty-hint') || summaryContainer.querySelector('.student-tag')){
+           renderSummaryTable();
+        }
       }
     });
 
@@ -719,6 +1076,8 @@
     document.addEventListener("click", (e)=>{
       const btn = e.target.closest?.("[data-edit-title]");
       if(!btn) return;
+      if(currentClass === 'weekly') return; // 周视图不能改表名
+
       const sheet = btn.getAttribute("data-edit-title");
       const day = getDay();
 
@@ -732,19 +1091,43 @@
       titles[sheet] = trimmed ? trimmed : DEFAULT_TITLES[sheet];
       saveStore(store);
       render();
-      // 改完表名后，提示用户刷新统计
       summaryContainer.innerHTML = `<div class="empty-hint" style="grid-column: 1/-1; text-align:center; padding:20px;">表名已更新，请点击上方“刷新统计数据”按钮重新统计。</div>`;
     });
 
-    // ===== 清空当日 =====
+    // ===== 清空当日确认弹窗 =====
+    const dlgClearConfirm = document.getElementById("dlgClearConfirm");
+    const confirmClassNameEl = document.getElementById("confirmClassName");
+    const confirmDateEl = document.getElementById("confirmDate");
+    
     document.getElementById("clearDay").addEventListener("click", ()=>{
+      if(currentClass === 'weekly') {
+        alert("请在“14 班”或“9 班”视图中选择具体日期后进行清空操作。");
+        return;
+      }
+      const day = getDay();
+      confirmClassNameEl.textContent = CLASS_LABEL[currentClass];
+      confirmDateEl.textContent = day;
+      dlgClearConfirm.showModal();
+    });
+
+    document.getElementById("confirmClear").addEventListener("click", ()=>{
       const day = getDay();
       clearDay(currentClass, day);
       render();
+      dlgClearConfirm.close();
+    });
+
+    document.getElementById("cancelClear").addEventListener("click", ()=>{
+      dlgClearConfirm.close();
+    });
+
+    document.getElementById("closeClearConfirm").addEventListener("click", ()=>{
+      dlgClearConfirm.close();
     });
 
     // ===== 恢复默认表名 =====
     document.getElementById("resetTitles").addEventListener("click", ()=>{
+      if(currentClass === 'weekly') return;
       const day = getDay();
       resetTitlesForDay(currentClass, day);
       render();
@@ -752,7 +1135,7 @@
 
     // ===== 刷新统计按钮 =====
     btnRefreshSummary.addEventListener("click", ()=>{
-      renderSummaryTable();
+      if(currentClass !== 'weekly') renderSummaryTable();
     });
 
     // ===== 导出/导入 JSON =====
@@ -826,12 +1209,14 @@
         store = base;
         saveStore(store);
         dlg.close();
-        render();
+        if(currentClass !== 'weekly') render();
+        else renderWeekly();
       }catch(err){
         alert("导入失败：JSON 格式不正确或结构不匹配。");
       }
     });
 
+    // 初始化
     render();
   </script>
 </body>
