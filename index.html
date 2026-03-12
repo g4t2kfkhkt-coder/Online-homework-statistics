@@ -311,7 +311,7 @@
       margin-top: 16px;
     }
 
-    /* 每周统计视图样式 - ✅ 优化冻结窗口功能 */
+    /* 每周统计视图样式 - ✅ 强力冻结窗口功能 */
     .weekly-view {
       display: flex;
       flex-direction: column;
@@ -343,6 +343,7 @@
       /* 确保滚动条可见 */
       scrollbar-width: thin;
       scrollbar-color: var(--primary-soft) #f1f2f3;
+      /* ✅ 关键：移除 overflow: hidden，让 sticky 生效 */
     }
     .weekly-table-wrapper::-webkit-scrollbar {
       width: 8px;
@@ -365,7 +366,7 @@
       border-collapse: collapse;
       background: #fff;
       min-width: 800px;
-      table-layout: fixed;
+      /* ✅ 移除 table-layout: fixed，让列宽自适应 */
     }
     .weekly-table th, .weekly-table td {
       padding: 10px 8px;
@@ -384,26 +385,38 @@
       top: 0;
       z-index: 10;
     }
-    /* ✅ 优化：学号列冻结 - 第一列 */
+    /* ✅ 强力冻结：学号列 - 第一列 */
     .weekly-table th:first-child,
     .weekly-table td:first-child {
       position: sticky;
       left: 0;
       z-index: 20;
       background: #fff;
-      border-right: 2px solid var(--line);
+      border-right: 2px solid var(--primary-soft);
       width: 60px;
       min-width: 60px;
       max-width: 60px;
       text-align: center;
       font-weight: 700;
       color: var(--text);
-      box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+      /* ✅ 添加阴影，确保视觉上突出 */
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      /* ✅ 确保背景不透明 */
+      backdrop-filter: blur(0);
     }
-    /* ✅ 优化：表头左上角单元格 - 同时固定顶部和左侧 */
+    /* ✅ 表头左上角单元格 - 同时固定顶部和左侧，最高层级 */
     .weekly-table thead th:first-child {
       z-index: 30;
       background: #f5f6f7;
+      top: 0;
+      left: 0;
+    }
+    /* ✅ 确保第一列的背景色在滚动时覆盖其他内容 */
+    .weekly-table tbody td:first-child {
+      background: #fff;
+    }
+    .weekly-table tbody tr:hover td:first-child {
+      background: #f9fafb;
     }
     
     .missing-tags {
@@ -447,6 +460,8 @@
     @media(max-width: 768px){
       .weekly-table-wrapper {
         max-height: 400px;
+        /* ✅ 手机端确保容器可滚动 */
+        -webkit-overflow-scrolling: touch;
       }
       .weekly-table th, .weekly-table td {
         padding: 8px 4px;
@@ -458,6 +473,9 @@
         min-width: 50px;
         max-width: 50px;
         font-size: 14px;
+        /* ✅ 手机端加强冻结效果 */
+        position: -webkit-sticky;
+        position: sticky;
       }
       .missing-tag {
         padding: 3px 6px;
