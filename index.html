@@ -311,7 +311,7 @@
       margin-top: 16px;
     }
 
-    /* ✅ 每周统计视图样式 - 双表冻结方案 */
+    /* ✅ 每周统计视图样式 - 双表冻结方案（修复版） */
     .weekly-view {
       display: flex;
       flex-direction: column;
@@ -339,19 +339,26 @@
       border-radius: 12px;
       border: 1px solid var(--line);
       overflow: hidden;
+      /* ✅ 关键：容器统一高度 */
     }
     /* ✅ 左侧学号表 - 固定宽度，不横向滚动 */
     .weekly-table-left {
       flex: 0 0 60px;
       min-width: 60px;
       max-width: 60px;
-      overflow-y: auto;
+      overflow-y: scroll;
       overflow-x: hidden;
       background: #fff;
       border-right: 2px solid var(--primary-soft);
       position: relative;
       z-index: 10;
       box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+      /* ✅ 隐藏滚动条但保留滚动功能 */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .weekly-table-left::-webkit-scrollbar {
+      display: none;
     }
     /* ✅ 右侧数据表 - 可横向滚动 */
     .weekly-table-right {
@@ -359,15 +366,6 @@
       overflow: auto;
       min-width: 0;
       background: #fff;
-    }
-    /* ✅ 隐藏左侧表的横向滚动条 */
-    .weekly-table-left::-webkit-scrollbar {
-      width: 0;
-      height: 0;
-    }
-    .weekly-table-left {
-      scrollbar-width: none;
-      -ms-overflow-style: none;
     }
     /* ✅ 自定义右侧表滚动条 */
     .weekly-table-right::-webkit-scrollbar {
@@ -389,12 +387,17 @@
       width: 100%;
       border-collapse: collapse;
       background: #fff;
+      /* ✅ 关键：固定表格布局，确保行高一致 */
+      table-layout: fixed;
     }
+    /* ✅ 关键：固定行高，确保左右表完全对齐 */
     .weekly-table th, .weekly-table td {
-      padding: 10px 8px;
+      padding: 8px 6px;
       text-align: left;
       border-bottom: 1px solid rgba(0,0,0,0.05);
       white-space: nowrap;
+      height: 36px;
+      box-sizing: border-box;
     }
     .weekly-table th {
       background: #f5f6f7;
@@ -404,6 +407,7 @@
       position: sticky;
       top: 0;
       z-index: 5;
+      height: 40px;
     }
     /* ✅ 左侧表头固定 */
     .weekly-table-left th {
@@ -431,25 +435,32 @@
     .weekly-table-right th {
       z-index: 5;
     }
+    /* ✅ 右侧表单元格内容 */
+    .weekly-table-right td {
+      overflow: hidden;
+    }
     
     .missing-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 4px;
+      max-height: 52px;
+      overflow: hidden;
     }
     .missing-tag {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 4px 8px;
+      padding: 3px 6px;
       background: #fff;
       border: 1px solid var(--danger);
       color: var(--danger);
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      white-space: nowrap;
     }
     .missing-tag:hover {
       background: var(--danger);
@@ -457,16 +468,17 @@
       transform: translateY(-1px);
     }
     .missing-tag .date-label {
-      font-size: 10px;
+      font-size: 9px;
       opacity: 0.8;
       background: rgba(0,0,0,0.1);
-      padding: 1px 4px;
-      border-radius: 4px;
+      padding: 1px 3px;
+      border-radius: 3px;
     }
     .no-data-row td {
       text-align: center;
       color: var(--muted);
       padding: 20px;
+      height: 60px !important;
     }
 
     /* ✅ 手机端优化 */
@@ -484,16 +496,20 @@
         width: 50px;
         min-width: 50px;
         max-width: 50px;
-        font-size: 14px;
-        padding: 10px 4px;
+        font-size: 13px;
+        padding: 8px 4px;
       }
       .weekly-table th, .weekly-table td {
-        padding: 10px 6px;
-        font-size: 13px;
+        padding: 8px 4px;
+        font-size: 12px;
+        height: 34px;
+      }
+      .weekly-table th {
+        height: 38px;
       }
       .missing-tag {
-        padding: 3px 6px;
-        font-size: 11px;
+        padding: 2px 5px;
+        font-size: 10px;
       }
       .missing-tag .date-label {
         display: none;
@@ -881,7 +897,7 @@
       renderSummaryTable();
     };
 
-    // ✅ 新增：每周统计渲染逻辑（双表冻结方案）
+    // ✅ 新增：每周统计渲染逻辑（双表冻结方案 - 修复版）
     function renderWeekly(){
       weeklyPanel.innerHTML = '';
       
@@ -901,6 +917,7 @@
         // ✅ 左侧学号表
         const leftWrapper = document.createElement('div');
         leftWrapper.className = 'weekly-table-left';
+        leftWrapper.id = `left-${cls}`;
         const leftTable = document.createElement('table');
         leftTable.className = 'weekly-table';
         leftWrapper.appendChild(leftTable);
@@ -908,6 +925,7 @@
         // ✅ 右侧数据表
         const rightWrapper = document.createElement('div');
         rightWrapper.className = 'weekly-table-right';
+        rightWrapper.id = `right-${cls}`;
         const rightTable = document.createElement('table');
         rightTable.className = 'weekly-table';
         rightWrapper.appendChild(rightTable);
@@ -919,7 +937,7 @@
         // 1. 收集所有有记录的日期，并按时间倒序排列
         const allDates = Object.keys(store.classes[cls]?.dates || {}).sort((a,b) => b.localeCompare(a));
         
-        // 2. 筛选出"有效日期"：至少有一个人、在一个非默认表名的作业中是"空白"状态
+        // 2. 筛选出"有效日期"
         const validDates = [];
         const dateDetails = {};
 
@@ -984,25 +1002,29 @@
         leftTable.appendChild(leftThead);
 
         const leftTbody = document.createElement('tbody');
+        const rowsWithData = [];
+        
         for(let i=1; i<=50; i++){
           const sid = String(i);
-          const tr = document.createElement('tr');
-          const tdId = document.createElement('td');
-          tdId.textContent = sid;
-          tr.appendChild(tdId);
-          
-          // ✅ 如果该行有未交记录，才添加到左侧表
           let rowHasMissing = false;
           validDates.forEach(date => {
             if(dateDetails[date] && dateDetails[date][sid]){
               rowHasMissing = true;
             }
           });
-          
           if(rowHasMissing){
-            leftTbody.appendChild(tr);
+            rowsWithData.push(sid);
           }
         }
+
+        // ✅ 先构建所有行，确保行高一致
+        rowsWithData.forEach(sid => {
+          const tr = document.createElement('tr');
+          const tdId = document.createElement('td');
+          tdId.textContent = sid;
+          tr.appendChild(tdId);
+          leftTbody.appendChild(tr);
+        });
         leftTable.appendChild(leftTbody);
 
         // ✅ 构建右侧表（数据列）
@@ -1023,10 +1045,9 @@
         const rightTbody = document.createElement('tbody');
         let hasAnyData = false;
 
-        for(let i=1; i<=50; i++){
-          const sid = String(i);
+        // ✅ 使用相同的行顺序构建右侧表
+        rowsWithData.forEach(sid => {
           const tr = document.createElement('tr');
-          
           let rowHasMissing = false;
 
           validDates.forEach(date => {
@@ -1056,7 +1077,7 @@
             hasAnyData = true;
             rightTbody.appendChild(tr);
           }
-        }
+        });
 
         if(!hasAnyData){
           const trEmpty = document.createElement('tr');
@@ -1077,24 +1098,21 @@
       });
     }
 
-    // ✅ 同步滚动函数
+    // ✅ 同步滚动函数（修复版）
     function syncScroll(left, right){
-      let isSyncingLeft = false;
-      let isSyncingRight = false;
+      let isSyncing = false;
 
-      left.addEventListener('scroll', () => {
-        if(isSyncingLeft) return;
-        isSyncingRight = true;
-        right.scrollTop = left.scrollTop;
-        setTimeout(() => { isSyncingRight = false; }, 10);
-      });
+      const sync = (source, target) => {
+        if(isSyncing) return;
+        isSyncing = true;
+        target.scrollTop = source.scrollTop;
+        requestAnimationFrame(() => {
+          isSyncing = false;
+        });
+      };
 
-      right.addEventListener('scroll', () => {
-        if(isSyncingRight) return;
-        isSyncingLeft = true;
-        left.scrollTop = right.scrollTop;
-        setTimeout(() => { isSyncingLeft = false; }, 10);
-      });
+      left.addEventListener('scroll', () => sync(left, right), { passive: true });
+      right.addEventListener('scroll', () => sync(right, left), { passive: true });
     }
 
     // ✅ 修改：处理周视图表单点击 (不再跳转页面，直接更新并重绘)
