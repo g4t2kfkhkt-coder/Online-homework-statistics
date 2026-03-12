@@ -356,7 +356,6 @@
       width: 100%;
       border-collapse: collapse;
       background: #fff;
-      /* ✅ 关键：移除 min-width，让表格自适应容器 */
       table-layout: fixed;
     }
     /* ✅ 关键：允许内容换行 */
@@ -369,6 +368,13 @@
       word-break: break-all;
       vertical-align: top;
       min-height: 40px;
+      /* ✅ 新增：列之间添加分隔竖线 */
+      border-right: 1px solid rgba(0,0,0,0.08);
+    }
+    /* ✅ 最后一列不需要右边框 */
+    .weekly-table th:last-child,
+    .weekly-table td:last-child {
+      border-right: none;
     }
     /* ✅ 学号列固定宽度 */
     .weekly-table th:first-child,
@@ -378,6 +384,8 @@
       max-width: 50px;
       text-align: center;
       vertical-align: middle;
+      /* ✅ 学号列右边框加粗，颜色突出 */
+      border-right: 2px solid var(--primary-soft);
     }
     /* ✅ 表头固定顶部 */
     .weekly-table th {
@@ -397,7 +405,6 @@
       left: 0;
       z-index: 20;
       background: #fff;
-      border-right: 2px solid var(--primary-soft);
       font-weight: 700;
       color: var(--text);
       box-shadow: 2px 0 6px rgba(0,0,0,0.06);
@@ -423,7 +430,6 @@
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
-      /* ✅ 移除最大高度限制，允许换行 */
     }
     .missing-tag {
       display: inline-flex;
