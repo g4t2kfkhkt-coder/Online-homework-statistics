@@ -358,7 +358,7 @@
       background: #fff;
       table-layout: fixed;
     }
-    /* ✅ 关键：允许内容换行 */
+    /* ✅ 关键：允许内容换行，自动增高行高 */
     .weekly-table th, .weekly-table td {
       padding: 8px 6px;
       text-align: left;
@@ -367,9 +367,12 @@
       word-wrap: break-word;
       word-break: break-all;
       vertical-align: top;
+      /* ✅ 移除固定高度，让内容决定行高 */
+      height: auto;
       min-height: 40px;
       /* ✅ 新增：列之间添加分隔竖线 */
       border-right: 1px solid rgba(0,0,0,0.08);
+      line-height: 1.5;
     }
     /* ✅ 最后一列不需要右边框 */
     .weekly-table th:last-child,
@@ -426,11 +429,17 @@
       width: auto;
     }
     
+    /* ✅ 作业标签容器 - 允许换行，自动增高 */
     .missing-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
+      /* ✅ 移除高度限制，让内容自然撑开 */
+      max-height: none;
+      overflow: visible;
+      align-content: flex-start;
     }
+    /* ✅ 作业标签 - 允许换行显示 */
     .missing-tag {
       display: inline-flex;
       align-items: center;
@@ -444,7 +453,12 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
-      white-space: nowrap;
+      /* ✅ 允许标签内文字换行 */
+      white-space: normal;
+      word-wrap: break-word;
+      word-break: break-all;
+      max-width: 100%;
+      line-height: 1.4;
     }
     .missing-tag:hover {
       background: var(--danger);
@@ -457,6 +471,8 @@
       background: rgba(0,0,0,0.1);
       padding: 1px 4px;
       border-radius: 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .no-data-row td {
       text-align: center;
