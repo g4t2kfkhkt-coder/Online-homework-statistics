@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>交作业统计（14 班 / 9 班）</title>
+
   <style>
     /* =========================
        ✅ Bilibili 粉白风格主题
@@ -14,19 +15,25 @@
       --text:#111827;
       --muted:#6b7280;
       --line:rgba(0,0,0,.08);
+
       --primary:#fb7299;
       --primary-soft:rgba(251,114,153,.18);
+
       --good:#22c55e;
       --circle:#60a5fa;
       --tri:#a78bfa;
       --blank:#9ca3af;
       --danger:#ef4444;
+
       --shadow:0 8px 24px rgba(0,0,0,.08);
       --radius:16px;
+
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
+
     *{box-sizing:border-box}
+
     body{
       margin:0;
       font-family:var(--sans);
@@ -37,7 +44,9 @@
         var(--bg);
       min-height:100vh;
     }
+
     .wrap{max-width:1200px; margin:0 auto; padding:16px;}
+
     header{
       display:flex;
       flex-wrap:wrap;
@@ -46,10 +55,13 @@
       justify-content:space-between;
       margin-bottom:14px;
     }
+
     .left,.right{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+
     .brand{display:flex; flex-direction:column; gap:4px;}
     .brand h1{margin:0; font-size:18px;}
     .brand .sub{font-size:13px; color:var(--muted); line-height:1.5}
+
     .card{
       background:var(--card);
       border:1px solid var(--line);
@@ -57,6 +69,7 @@
       box-shadow:var(--shadow);
       padding:12px;
     }
+
     /* Tabs */
     .tabs{
       display:flex;
@@ -79,6 +92,7 @@
       background:var(--primary-soft);
       color:var(--primary);
     }
+
     input,select,textarea{
       background:#fff;
       border:1px solid var(--line);
@@ -88,6 +102,7 @@
       color:var(--text);
       outline:none;
     }
+
     button{
       background:#fff;
       border:1px solid var(--line);
@@ -97,18 +112,22 @@
       cursor:pointer;
     }
     button:hover{background:#f5f6f7}
+
     button.primary{
       background:var(--primary-soft);
       border-color:var(--primary);
       color:var(--primary);
     }
     button.primary:hover{background:rgba(251,114,153,.28)}
+
     button.danger{
       background:rgba(239,68,68,.12);
       border-color:rgba(239,68,68,.4);
       color:#ef4444;
     }
+
     button.tiny{padding:6px 10px; font-size:12px;}
+
     .grid4{
       display:grid;
       grid-template-columns:1fr;
@@ -117,6 +136,7 @@
     @media(min-width:900px){
       .grid4{grid-template-columns:1fr 1fr}
     }
+
     .panelTitle{
       display:flex;
       justify-content:space-between;
@@ -125,6 +145,7 @@
     }
     .panelTitle .name{font-weight:900}
     .panelTitle .hint{font-size:13px; color:var(--muted)}
+
     table{
       width:100%;
       border-collapse:separate;
@@ -149,11 +170,13 @@
       border-bottom:1px solid rgba(0,0,0,.05);
     }
     tbody tr:last-child td{border-bottom:none}
+
     .id{
       font-family:var(--mono);
       font-size:13px;
       color:#374151;
     }
+
     .status{
       font-size:18px;
       font-weight:900;
@@ -165,10 +188,12 @@
       user-select:none;
     }
     .status:hover{background:#f1f2f3}
+
     .s-blank{color:var(--blank)}
     .s-check{color:var(--good)}
     .s-circle{color:var(--circle)}
     .s-tri{color:var(--tri)}
+
     .footerLegend{
       margin-top:14px;
       display:flex;
@@ -177,6 +202,7 @@
       justify-content:space-between;
       align-items:center;
     }
+
     .pill{
       display:inline-flex;
       align-items:center;
@@ -188,8 +214,10 @@
       font-size:12px;
       color:var(--muted);
     }
+
     .legendRow{display:flex; gap:8px; flex-wrap:wrap}
     .small{font-size:12px; color:var(--muted)}
+
     dialog{
       border:none;
       border-radius:16px;
@@ -198,12 +226,14 @@
       width:min(760px,96vw);
     }
     dialog .card{margin:0}
+
     textarea{
       min-height:120px;
       resize:vertical;
       font-family:var(--mono);
       font-size:12px;
     }
+
     /* 新增：总表样式 */
     .summary-card{
       margin-bottom: 16px;
@@ -230,7 +260,7 @@
     }
     .summary-col h4{
       margin: 0 0 8px 0;
-      font-size:14px;
+      font-size: 14px;
       color: var(--primary);
       display:flex;
       justify-content:space-between;
@@ -247,7 +277,7 @@
       color: var(--danger);
       padding: 4px 8px;
       border-radius: 6px;
-      font-size:12px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
@@ -259,124 +289,140 @@
     }
     .empty-hint{
       color: var(--muted);
-      font-size:12px;
+      font-size: 12px;
       font-style: italic;
     }
+
     /* 确认弹窗样式 */
     .confirm-dialog {
       border: none;
-      border-radius:16px;
-      padding:0;
+      border-radius: 16px;
+      padding: 0;
       background: transparent;
       width: min(500px, 90vw);
     }
     .confirm-dialog .card {
-      margin:0;
+      margin: 0;
     }
     .dialog-actions {
-      display:flex;
-      gap:10px;
-      justify-content:flex-end;
-      margin-top:16px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
-    /* 每周统计视图样式 */
+
+    /* 每周统计视图样式 - ✅ 优化冻结窗口功能 */
     .weekly-view {
-      display:flex;
-      flex-direction:column;
-      gap:20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
     .weekly-class-block {
       background: #fff;
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:16px;
-      box-shadow:var(--shadow);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
     }
     .weekly-class-title {
-      font-size:16px;
-      font-weight:900;
-      color:var(--primary);
-      margin-bottom:12px;
-      display:flex;
-      align-items:center;
-      gap:8px;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+    /* ✅ 优化：表格容器 - 双向滚动 */
     .weekly-table-wrapper {
-      overflow-x: auto;
-      max-height:600px;
-      overflow-y: auto;
-      border-radius:12px;
-      border:1px solid var(--line);
-      /* 新增：滚动条样式优化，适配手机 */
+      overflow: auto;
+      max-height: 500px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      position: relative;
+      /* 确保滚动条可见 */
       scrollbar-width: thin;
-      scrollbar-color: var(--primary) var(--line);
+      scrollbar-color: var(--primary-soft) #f1f2f3;
     }
-    /* 新增：webkit 内核滚动条样式（微信/Chrome手机端） */
     .weekly-table-wrapper::-webkit-scrollbar {
-      height: 6px;
-      width: 6px;
-    }
-    .weekly-table-wrapper::-webkit-scrollbar-thumb {
-      background-color: var(--primary);
-      border-radius: 3px;
+      width: 8px;
+      height: 8px;
     }
     .weekly-table-wrapper::-webkit-scrollbar-track {
-      background-color: var(--line);
-      border-radius: 3px;
+      background: #f1f2f3;
+      border-radius: 4px;
     }
+    .weekly-table-wrapper::-webkit-scrollbar-thumb {
+      background: var(--primary-soft);
+      border-radius: 4px;
+    }
+    .weekly-table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+    
     .weekly-table {
-      width:100%;
+      width: 100%;
       border-collapse: collapse;
       background: #fff;
-      min-width:800px;
+      min-width: 800px;
+      table-layout: fixed;
     }
     .weekly-table th, .weekly-table td {
-      padding:10px 8px;
+      padding: 10px 8px;
       text-align: left;
-      border-bottom:1px solid rgba(0,0,0,0.05);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .weekly-table th {
       background: #f5f6f7;
-      color:var(--muted);
-      font-size:12px;
-      font-weight:700;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
       position: sticky;
       top: 0;
       z-index: 10;
     }
-    /* 核心修改：冻结学号列 - 强化z-index+固定left+增加背景遮挡，解决手机滑动遮挡问题 */
-    .weekly-table td:first-child,
-    .weekly-table th:first-child {
+    /* ✅ 优化：学号列冻结 - 第一列 */
+    .weekly-table th:first-child,
+    .weekly-table td:first-child {
       position: sticky;
       left: 0;
       z-index: 20;
-      background: #f5f6f7;
-      border-right:1px solid var(--line);
-      width: 60px;
-      text-align: center;
-      font-weight:700;
-    }
-    .weekly-table td:first-child {
       background: #fff;
+      border-right: 2px solid var(--line);
+      width: 60px;
+      min-width: 60px;
+      max-width: 60px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--text);
+      box-shadow: 2px 0 8px rgba(0,0,0,0.08);
     }
+    /* ✅ 优化：表头左上角单元格 - 同时固定顶部和左侧 */
+    .weekly-table thead th:first-child {
+      z-index: 30;
+      background: #f5f6f7;
+    }
+    
     .missing-tags {
-      display:flex;
-      flex-wrap:wrap;
-      gap:6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
     .missing-tag {
-      display:inline-flex;
-      align-items:center;
-      gap:4px;
-      padding:4px 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
       background: #fff;
-      border:1px solid var(--danger);
-      color:var(--danger);
-      border-radius:6px;
-      font-size:12px;
-      font-weight:600;
-      cursor:pointer;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
       transition: all 0.2s;
     }
     .missing-tag:hover {
@@ -385,27 +431,56 @@
       transform: translateY(-1px);
     }
     .missing-tag .date-label {
-      font-size:10px;
-      opacity:0.8;
+      font-size: 10px;
+      opacity: 0.8;
       background: rgba(0,0,0,0.1);
-      padding:1px 4px;
-      border-radius:4px;
+      padding: 1px 4px;
+      border-radius: 4px;
     }
     .no-data-row td {
-      text-align:center;
-      color:var(--muted);
-      padding:20px;
+      text-align: center;
+      color: var(--muted);
+      padding: 20px;
     }
+
+    /* ✅ 新增：手机端优化 */
+    @media(max-width: 768px){
+      .weekly-table-wrapper {
+        max-height: 400px;
+      }
+      .weekly-table th, .weekly-table td {
+        padding: 8px 4px;
+        font-size: 13px;
+      }
+      .weekly-table th:first-child,
+      .weekly-table td:first-child {
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
+        font-size: 14px;
+      }
+      .missing-tag {
+        padding: 3px 6px;
+        font-size: 11px;
+      }
+      .missing-tag .date-label {
+        display: none;
+      }
+    }
+
   </style>
 </head>
+
+
 <body>
   <div class="wrap">
     <header>
       <div class="left">
         <div class="brand">
           <h1>交作业统计（两班 / 按日期）</h1>
-          <div class="sub">点击“作业状态”格：空白 → ✓ → ○ → △ → 空白（循环）。表名可点 ✎ 动态改名并保存（按日期保存，不联动其他日期）。</div>
+          <div class="sub">点击"作业状态"格：空白 → ✓ → ○ → △ → 空白（循环）。表名可点 ✎ 动态改名并保存（按日期保存，不联动其他日期）。</div>
         </div>
+
         <div class="tabs" role="tablist" aria-label="班级切换">
           <button class="tab active" data-class="class14" role="tab">14 班</button>
           <button class="tab" data-class="class9" role="tab">9 班</button>
@@ -413,6 +488,7 @@
           <button class="tab" data-class="weekly" role="tab">每周统计</button>
         </div>
       </div>
+
       <div class="right card">
         <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
           <div>
@@ -432,6 +508,7 @@
         </div>
       </div>
     </header>
+
     <!-- ✅ 新增：未交作业统计总表 (仅在非每周视图显示) -->
     <div class="card summary-card" id="summaryCardContainer">
       <div class="summary-header">
@@ -443,11 +520,12 @@
       </div>
       <div id="summaryContainer" class="summary-grid">
         <div class="empty-hint" style="grid-column: 1/-1; text-align:center; padding:20px;">
-          点击上方“刷新统计数据”按钮，开始统计今日未交作业名单。<br>
-          点击名单中的学号可直接标记为“已交”。
+          点击上方"刷新统计数据"按钮，开始统计今日未交作业名单。<br>
+          点击名单中的学号可直接标记为"已交"。
         </div>
       </div>
     </div>
+
     <!-- 日常视图网格 -->
     <div class="grid4" id="dailyGrid">
       <div class="card">
@@ -460,6 +538,7 @@
         </div>
         <div id="panelA"></div>
       </div>
+
       <div class="card">
         <div class="panelTitle">
           <div class="name">右上</div>
@@ -470,6 +549,7 @@
         </div>
         <div id="panelB"></div>
       </div>
+
       <div class="card">
         <div class="panelTitle">
           <div class="name">左下</div>
@@ -480,6 +560,7 @@
         </div>
         <div id="panelC"></div>
       </div>
+
       <div class="card">
         <div class="panelTitle">
           <div class="name">右下</div>
@@ -491,10 +572,12 @@
         <div id="panelD"></div>
       </div>
     </div>
+
     <!-- 新增：每周统计视图容器 -->
     <div id="weeklyPanel" class="weekly-view" style="display:none;">
       <!-- 由 JS 动态填充 -->
     </div>
+
     <div class="footerLegend card">
       <div class="legendRow">
         <span class="pill"><b class="s-blank">空白</b><span class="sep">|</span>未交</span>
@@ -504,6 +587,7 @@
       </div>
       <div class="small">提示：数据保存在本机浏览器（localStorage），刷新/关闭浏览器不会丢；建议定期导出 JSON 备份。</div>
     </div>
+
     <!-- 导入 JSON 弹窗 -->
     <dialog id="dlgImport">
       <div class="card">
@@ -522,6 +606,7 @@
         </div>
       </div>
     </dialog>
+
     <!-- 清空当日确认弹窗 -->
     <dialog id="dlgClearConfirm" class="confirm-dialog">
       <div class="card">
@@ -539,7 +624,9 @@
         </div>
       </div>
     </dialog>
+
   </div>
+
   <script>
     /***********************
      * 数据结构（localStorage）
@@ -555,17 +642,21 @@
     const SHEETS = ["A","B","C","D"]; // 四个表：左上/右上/左下/右下
     const CYCLE = ["", "✓", "○", "△"]; // 空白 → ✓ → ○ → △ → 空白
     const CLASS_LABEL = { class14:"14 班", class9:"9 班" };
+
     // 默认表名（用于过滤统计）
     const DEFAULT_TITLES = { A:"作业 1", B:"作业 2", C:"作业 3", D:"作业 4" };
+
     const elDate = document.getElementById("date");
     const elHistory = document.getElementById("historySelect");
     const tabs = document.querySelectorAll(".tab");
+
     const titleEls = {
       A: document.getElementById("titleA"),
       B: document.getElementById("titleB"),
       C: document.getElementById("titleC"),
       D: document.getElementById("titleD")
     };
+
     const panels = {
       A: document.getElementById("panelA"),
       B: document.getElementById("panelB"),
@@ -578,12 +669,14 @@
     const btnRefreshSummary = document.getElementById("btnRefreshSummary");
     const dailyGrid = document.getElementById("dailyGrid");
     const weeklyPanel = document.getElementById("weeklyPanel");
+
     function todayISO(){
       const d = new Date();
       const off = d.getTimezoneOffset();
       const local = new Date(d.getTime() - off*60000);
       return local.toISOString().slice(0,10);
     }
+
     function loadStore(){
       try{
         const raw = localStorage.getItem(STORE_KEY);
@@ -606,11 +699,14 @@
       }
       return s;
     }
+
     let store = ensureStore();
     let currentClass = "class14";
+
     function getDay(){
       return elDate.value || todayISO();
     }
+
     function ensureDayRecord(cls, day){
       const c = store.classes[cls];
       if(!c.dates[day]){
@@ -628,25 +724,30 @@
       }
       return c.dates[day];
     }
+
     function getStatusIndex(cls, day, sheet, studentId){
       const rec = ensureDayRecord(cls, day);
       const v = rec[sheet][studentId];
       return (typeof v === "number") ? v : 0; 
     }
+
     function setStatusIndex(cls, day, sheet, studentId, idx){
       const rec = ensureDayRecord(cls, day);
       rec[sheet][studentId] = idx;
       saveStore(store);
     }
+
     function clearDay(cls, day){
       store.classes[cls].dates[day] = { A:{}, B:{}, C:{}, D:{}, titles:{...DEFAULT_TITLES} };
       saveStore(store);
     }
+
     function resetTitlesForDay(cls, day){
       const rec = ensureDayRecord(cls, day);
       rec.titles = { ...DEFAULT_TITLES };
       saveStore(store);
     }
+
     function buildTableHTML(cls, day, sheet){
       let html = `<div style="overflow:auto; max-height:850px;">`;
       html += `<table aria-label="${CLASS_LABEL[cls]} ${day} 表${sheet}">`;
@@ -655,6 +756,7 @@
         html += `<th>学号</th><th>作业状态</th>`;
       }
       html += `</tr></thead><tbody>`;
+
       for(let r=0; r<10; r++){
         html += `<tr>`;
         for(let g=0; g<5; g++){
@@ -681,6 +783,7 @@
       html += `</tbody></table></div>`;
       return html;
     }
+
     // ✅ 新增：渲染统计总表
     function renderSummaryTable(){
       const day = getDay();
@@ -689,6 +792,7 @@
       
       let html = '';
       let hasData = false;
+
       SHEETS.forEach(sheet => {
         const title = titles[sheet] || DEFAULT_TITLES[sheet];
         
@@ -696,6 +800,7 @@
         if (DEFAULT_TITLES[sheet] === title) {
           return; 
         }
+
         const missingStudents = [];
         for(let i=1; i<=50; i++){
           const sid = String(i);
@@ -704,6 +809,7 @@
             missingStudents.push(sid);
           }
         }
+
         if(missingStudents.length > 0 || title) {
            hasData = true;
            html += `
@@ -719,12 +825,14 @@
            `;
         }
       });
+
       if(!hasData){
         summaryContainer.innerHTML = `<div class="empty-hint" style="grid-column: 1/-1; text-align:center; padding:20px;">今日所有表格均为默认名称（作业 1-4），未进行统计。<br>请点击上方 ✎ 修改表名后再次刷新。</div>`;
       } else {
         summaryContainer.innerHTML = html;
       }
     }
+
     // ✅ 新增：全局函数，供 HTML onclick 调用
     window.markAsDone = function(sheet, studentId){
       const day = getDay();
@@ -740,6 +848,7 @@
       // 2. 刷新上方总表（移除该学号）
       renderSummaryTable();
     };
+
     // ✅ 新增：每周统计渲染逻辑（智能追溯）
     function renderWeekly(){
       weeklyPanel.innerHTML = '';
@@ -752,6 +861,7 @@
         title.className = 'weekly-class-title';
         title.textContent = `${CLASS_LABEL[cls]} 近 7 个有效未交日统计`;
         block.appendChild(title);
+
         const wrapper = document.createElement('div');
         wrapper.className = 'weekly-table-wrapper';
         
@@ -761,15 +871,19 @@
         // 1. 收集所有有记录的日期，并按时间倒序排列
         const allDates = Object.keys(store.classes[cls]?.dates || {}).sort((a,b) => b.localeCompare(a));
         
-        // 2. 筛选出“有效日期”：至少有一个人、在一个非默认表名的作业中是“空白”状态
+        // 2. 筛选出"有效日期"：至少有一个人、在一个非默认表名的作业中是"空白"状态
         const validDates = [];
         const dateDetails = {}; // 缓存每一天的详细缺失数据，避免重复计算
+
         for(const date of allDates){
           if(validDates.length >= 7) break; // 凑齐 7 天就停止
+
           const dayRec = store.classes[cls].dates[date];
           if(!dayRec) continue;
+
           let dayHasMissing = false;
           const dayMissingMap = {}; // { studentId: [{sheet, title, date}] }
+
           // 检查这一天是否有未交记录
           for(let i=1; i<=50; i++){
             const sid = String(i);
@@ -785,16 +899,19 @@
                 missingList.push({sheet, title, date});
               }
             });
+
             if(missingList.length > 0){
               dayHasMissing = true;
               dayMissingMap[sid] = missingList;
             }
           }
+
           if(dayHasMissing){
             validDates.push(date);
             dateDetails[date] = dayMissingMap;
           }
         }
+
         // 如果没有找到任何有效日期
         if(validDates.length === 0){
           const divEmpty = document.createElement('div');
@@ -807,8 +924,10 @@
           weeklyPanel.appendChild(block);
           return;
         }
+
         // 反转数组，让最早的日期在左边，最近的在右边
         validDates.reverse();
+
         // 表头
         const thead = document.createElement('thead');
         const trHead = document.createElement('tr');
@@ -827,9 +946,11 @@
         });
         thead.appendChild(trHead);
         table.appendChild(thead);
+
         // 表体
         const tbody = document.createElement('tbody');
         let hasAnyData = false;
+
         for(let i=1; i<=50; i++){
           const sid = String(i);
           const tr = document.createElement('tr');
@@ -837,7 +958,9 @@
           const tdId = document.createElement('td');
           tdId.textContent = sid;
           tr.appendChild(tdId);
+
           let rowHasMissing = false;
+
           validDates.forEach(date => {
             const td = document.createElement('td');
             const dayMissingMap = dateDetails[date];
@@ -853,9 +976,8 @@
               dayMissingMap[sid].forEach(item => {
                 const tag = document.createElement('span');
                 tag.className = 'missing-tag';
-                tag.title = `点击标记为已交`;
+                tag.title = `点击前往 ${item.date} 标记为已交`;
                 tag.innerHTML = `${item.title} <span class="date-label">${item.date.slice(5)}</span>`;
-                // 直接绑定标记已交+刷新周视图，不再跳转日常视图
                 tag.onclick = () => handleWeeklyClick(cls, item.date, item.sheet, sid);
                 container.appendChild(tag);
               });
@@ -863,11 +985,13 @@
             }
             tr.appendChild(td);
           });
+
           if(rowHasMissing){
             hasAnyData = true;
             tbody.appendChild(tr);
           }
         }
+
         if(!hasAnyData){
           const trEmpty = document.createElement('tr');
           const tdEmpty = document.createElement('td');
@@ -877,37 +1001,52 @@
           trEmpty.appendChild(tdEmpty);
           tbody.appendChild(trEmpty);
         }
+
         table.appendChild(tbody);
         wrapper.appendChild(table);
         block.appendChild(wrapper);
         weeklyPanel.appendChild(block);
       });
     }
-    // ✅ 核心修改：处理周视图表单点击 - 移除跳转日常视图，仅标记+刷新周视图
+
+    // ✅ 修改：处理周视图表单点击 (不再跳转页面，直接更新并重绘)
     function handleWeeklyClick(cls, date, sheet, studentId){
-      // 1. 直接标记为已交（✓，状态值1）
+      // 1. 标记为已交 (直接更新数据)
       setStatusIndex(cls, date, sheet, studentId, 1);
-      // 2. 重新渲染每周统计视图，保留在当前页面
+      
+      // 2. 保存当前滚动位置，避免重绘后跳动
+      const scrollY = weeklyPanel.scrollTop;
+
+      // 3. 重新渲染每周统计视图 (保持在当前页面)
+      // 因为状态变了，renderWeekly 重新计算时，该学生的该天记录将不再显示为未交
       renderWeekly();
+
+      // 4. 恢复滚动位置
+      weeklyPanel.scrollTop = scrollY;
     }
+
     function render(){
       store = ensureStore();
       const day = getDay();
+
       const dayRec = ensureDayRecord(currentClass, day);
       const titles = dayRec.titles || DEFAULT_TITLES;
       for(const k of SHEETS){
         titleEls[k].textContent = titles[k] || DEFAULT_TITLES[k];
       }
+
       for(const sheet of SHEETS){
         panels[sheet].innerHTML = buildTableHTML(currentClass, day, sheet);
       }
+
       const days = Object.keys(store.classes[currentClass].dates || {}).sort((a,b)=> b.localeCompare(a));
       const keep = elHistory.value;
       elHistory.innerHTML = `<option value="">（选择已有记录日期）</option>` + days.map(d=>`<option value="${d}">${d}</option>`).join("");
       if(keep && days.includes(keep)) elHistory.value = keep;
       
-      summaryContainer.innerHTML = `<div class="empty-hint" style="grid-column: 1/-1; text-align:center; padding:20px;">日期已切换，请点击上方“刷新统计数据”按钮。</div>`;
+      summaryContainer.innerHTML = `<div class="empty-hint" style="grid-column: 1/-1; text-align:center; padding:20px;">日期已切换，请点击上方"刷新统计数据"按钮。</div>`;
     }
+
     // ===== 班级/视图切换 =====
     function switchTab(mode, cls){
       tabs.forEach(x=>x.classList.remove("active"));
@@ -935,6 +1074,7 @@
         render();
       }
     }
+
     tabs.forEach(btn=>{
       btn.addEventListener("click", ()=>{
         const cls = btn.dataset.class;
@@ -945,6 +1085,7 @@
         }
       });
     });
+
     // ===== 日期与历史 =====
     elDate.value = todayISO();
     elDate.addEventListener("change", ()=> {
@@ -956,6 +1097,7 @@
         render();
       }
     });
+
     // ===== 点击状态格（事件委托）=====
     document.addEventListener("click", (e)=>{
       const t = e.target.closest?.(".status");
@@ -967,6 +1109,7 @@
       const idx = parseInt(t.dataset.idx || "0", 10);
       const next = (idx + 1) % CYCLE.length;
       setStatusIndex(cls, day, sheet, student, next);
+
       t.dataset.idx = String(next);
       t.textContent = CYCLE[next];
       t.classList.remove("s-blank","s-check","s-circle","s-tri");
@@ -978,24 +1121,29 @@
         }
       }
     });
+
     // ===== 动态改表名 =====
     document.addEventListener("click", (e)=>{
       const btn = e.target.closest?.("[data-edit-title]");
       if(!btn) return;
       if(currentClass === 'weekly') return; // 周视图不能改表名
+
       const sheet = btn.getAttribute("data-edit-title");
       const day = getDay();
+
       const dayRec = ensureDayRecord(currentClass, day);
       const titles = dayRec.titles || (dayRec.titles = {...DEFAULT_TITLES});
       const current = titles[sheet] || DEFAULT_TITLES[sheet];
+
       const next = prompt(`请输入【${CLASS_LABEL[currentClass]}】${day} 的表名（${sheet}）：`, current);
       if(next === null) return;
       const trimmed = next.trim();
       titles[sheet] = trimmed ? trimmed : DEFAULT_TITLES[sheet];
       saveStore(store);
       render();
-      summaryContainer.innerHTML = `<div class="empty-hint" style="grid-column: 1/-1; text-align:center; padding:20px;">表名已更新，请点击上方“刷新统计数据”按钮重新统计。</div>`;
+      summaryContainer.innerHTML = `<div class="empty-hint" style="grid-column: 1/-1; text-align:center; padding:20px;">表名已更新，请点击上方"刷新统计数据"按钮重新统计。</div>`;
     });
+
     // ===== 清空当日确认弹窗 =====
     const dlgClearConfirm = document.getElementById("dlgClearConfirm");
     const confirmClassNameEl = document.getElementById("confirmClassName");
@@ -1003,7 +1151,8 @@
     
     document.getElementById("clearDay").addEventListener("click", ()=>{
       if(currentClass === 'weekly') {
-        alert("请在“14 班”或“9 班”视图中选择具体日期后进行清空操作。");
+        // ✅ 修复：修正引号语法错误，避免脚本崩溃
+        alert('请在"14 班”或"9 班”视图中选择具体日期后进行清空操作。');
         return;
       }
       const day = getDay();
@@ -1011,18 +1160,22 @@
       confirmDateEl.textContent = day;
       dlgClearConfirm.showModal();
     });
+
     document.getElementById("confirmClear").addEventListener("click", ()=>{
       const day = getDay();
       clearDay(currentClass, day);
       render();
       dlgClearConfirm.close();
     });
+
     document.getElementById("cancelClear").addEventListener("click", ()=>{
       dlgClearConfirm.close();
     });
+
     document.getElementById("closeClearConfirm").addEventListener("click", ()=>{
       dlgClearConfirm.close();
     });
+
     // ===== 恢复默认表名 =====
     document.getElementById("resetTitles").addEventListener("click", ()=>{
       if(currentClass === 'weekly') return;
@@ -1030,10 +1183,12 @@
       resetTitlesForDay(currentClass, day);
       render();
     });
+
     // ===== 刷新统计按钮 =====
     btnRefreshSummary.addEventListener("click", ()=>{
       if(currentClass !== 'weekly') renderSummaryTable();
     });
+
     // ===== 导出/导入 JSON =====
     function download(filename, content, type="application/json;charset=utf-8"){
       const blob = new Blob([content], {type});
@@ -1045,30 +1200,37 @@
       a.remove();
       URL.revokeObjectURL(url);
     }
+
     document.getElementById("exportJson").addEventListener("click", ()=>{
       const payload = ensureStore();
       download(`作业统计_两班_全部日期.json`, JSON.stringify(payload, null, 2));
     });
+
     const dlg = document.getElementById("dlgImport");
     document.getElementById("importJson").addEventListener("click", ()=>{
       document.getElementById("importBox").value = "";
       dlg.showModal();
     });
     document.getElementById("closeImport").addEventListener("click", ()=> dlg.close());
+
     document.getElementById("doImport").addEventListener("click", ()=>{
       try{
         const text = document.getElementById("importBox").value.trim();
         if(!text) return;
         const incoming = JSON.parse(text);
+
         const base = ensureStore();
+
         if(incoming?.classes){
           for(const cls of ["class14","class9"]){
             const inC = incoming.classes[cls];
             if(!inC) continue;
+
             if(inC.dates){
               for(const day of Object.keys(inC.dates)){
                 if(!base.classes[cls].dates[day]) base.classes[cls].dates[day] = {A:{},B:{},C:{},D:{}, titles:{...DEFAULT_TITLES}};
                 const dayRec = inC.dates[day] || {};
+
                 if(dayRec.titles){
                   if(!base.classes[cls].dates[day].titles) base.classes[cls].dates[day].titles = {...DEFAULT_TITLES};
                   base.classes[cls].dates[day].titles = {
@@ -1081,6 +1243,7 @@
                     }
                   }
                 }
+
                 for(const sheet of SHEETS){
                   if(!base.classes[cls].dates[day][sheet]) base.classes[cls].dates[day][sheet] = {};
                   const inSheet = dayRec[sheet] || {};
@@ -1093,15 +1256,17 @@
             }
           }
         }
+
         store = base;
         saveStore(store);
         dlg.close();
         if(currentClass !== 'weekly') render();
-        else renderWeekly(); // 导入后如果在周视图，刷新周视图
+        else renderWeekly();
       }catch(err){
         alert("导入失败：JSON 格式不正确或结构不匹配。");
       }
     });
+
     // 初始化
     render();
   </script>
