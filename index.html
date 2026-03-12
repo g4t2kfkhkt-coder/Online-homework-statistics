@@ -311,7 +311,7 @@
       margin-top: 16px;
     }
 
-    /* ✅ 每周统计视图样式 - 单表 sticky 方案（最终版） */
+    /* ✅ 每周统计视图样式 - 禁止横向滚动，内容换行 */
     .weekly-view {
       display: flex;
       flex-direction: column;
@@ -333,46 +333,50 @@
       align-items: center;
       gap: 8px;
     }
-    /* ✅ 关键：滚动容器直接包裹表格，不要嵌套 */
+    /* ✅ 关键：只允许垂直滚动，禁止横向滚动 */
     .weekly-table-wrapper {
-      overflow: auto;
+      overflow-x: hidden;
+      overflow-y: auto;
       max-height: 500px;
       border-radius: 12px;
       border: 1px solid var(--line);
-      /* ✅ 关键：启用平滑滚动 */
       -webkit-overflow-scrolling: touch;
     }
-    /* ✅ 自定义滚动条 */
+    /* 隐藏横向滚动条 */
     .weekly-table-wrapper::-webkit-scrollbar {
       width: 8px;
-      height: 8px;
+      height: 0;
     }
-    .weekly-table-wrapper::-webkit-scrollbar-track {
-      background: #f1f2f3;
-      border-radius: 4px;
-    }
-    .weekly-table-wrapper::-webkit-scrollbar-thumb {
-      background: var(--primary-soft);
-      border-radius: 4px;
-    }
-    .weekly-table-wrapper::-webkit-scrollbar-thumb:hover {
-      background: var(--primary);
+    .weekly-table-wrapper {
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary-soft) #f1f2f3;
     }
     
     .weekly-table {
       width: 100%;
       border-collapse: collapse;
       background: #fff;
-      min-width: 800px;
-      /* ✅ 关键：不要用 fixed，让内容自然撑开 */
+      /* ✅ 关键：移除 min-width，让表格自适应容器 */
+      table-layout: fixed;
     }
-    /* ✅ 关键：所有单元格统一高度 */
+    /* ✅ 关键：允许内容换行 */
     .weekly-table th, .weekly-table td {
-      padding: 10px 8px;
+      padding: 8px 6px;
       text-align: left;
       border-bottom: 1px solid rgba(0,0,0,0.05);
-      white-space: nowrap;
-      height: 42px;
+      white-space: normal;
+      word-wrap: break-word;
+      word-break: break-all;
+      vertical-align: top;
+      min-height: 40px;
+    }
+    /* ✅ 学号列固定宽度 */
+    .weekly-table th:first-child,
+    .weekly-table td:first-child {
+      width: 50px;
+      min-width: 50px;
+      max-width: 50px;
+      text-align: center;
       vertical-align: middle;
     }
     /* ✅ 表头固定顶部 */
@@ -384,9 +388,9 @@
       position: sticky;
       top: 0;
       z-index: 10;
-      height: 44px;
+      white-space: nowrap;
     }
-    /* ✅ 第一列（学号）固定左侧 - 关键设置 */
+    /* ✅ 第一列（学号）固定左侧 */
     .weekly-table th:first-child,
     .weekly-table td:first-child {
       position: sticky;
@@ -394,38 +398,38 @@
       z-index: 20;
       background: #fff;
       border-right: 2px solid var(--primary-soft);
-      width: 60px;
-      min-width: 60px;
-      max-width: 60px;
-      text-align: center;
       font-weight: 700;
       color: var(--text);
-      /* ✅ 关键：添加阴影确保视觉上突出 */
       box-shadow: 2px 0 6px rgba(0,0,0,0.06);
     }
-    /* ✅ 左上角单元格 - 同时固定顶部和左侧，最高层级 */
+    /* ✅ 左上角单元格 - 同时固定顶部和左侧 */
     .weekly-table thead th:first-child {
       z-index: 30;
       background: #f5f6f7;
     }
-    /* ✅ 确保第一列背景不透明 */
     .weekly-table tbody td:first-child {
       background: #fff;
     }
     .weekly-table tbody tr:hover td:first-child {
       background: #f9fafb;
     }
+    /* ✅ 日期列宽度均匀分配 */
+    .weekly-table th:not(:first-child),
+    .weekly-table td:not(:first-child) {
+      width: auto;
+    }
     
     .missing-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
+      /* ✅ 移除最大高度限制，允许换行 */
     }
     .missing-tag {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 4px 8px;
+      padding: 3px 6px;
       background: #fff;
       border: 1px solid var(--danger);
       color: var(--danger);
@@ -434,6 +438,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      white-space: nowrap;
     }
     .missing-tag:hover {
       background: var(--danger);
@@ -451,7 +456,6 @@
       text-align: center;
       color: var(--muted);
       padding: 20px;
-      height: 60px !important;
     }
 
     /* ✅ 手机端优化 */
@@ -459,26 +463,24 @@
       .weekly-table-wrapper {
         max-height: 400px;
       }
-      .weekly-table th, .weekly-table td {
-        padding: 8px 6px;
-        font-size: 12px;
-        height: 40px;
+      .weekly-class-block {
+        padding: 12px;
       }
-      .weekly-table th {
-        height: 42px;
+      .weekly-table th, .weekly-table td {
+        padding: 6px 4px;
+        font-size: 12px;
       }
       .weekly-table th:first-child,
       .weekly-table td:first-child {
-        width: 50px;
-        min-width: 50px;
-        max-width: 50px;
+        width: 45px;
+        min-width: 45px;
+        max-width: 45px;
         font-size: 13px;
-        /* ✅ 手机端同时使用两种 sticky 前缀 */
         position: -webkit-sticky;
         position: sticky;
       }
       .missing-tag {
-        padding: 3px 6px;
+        padding: 2px 5px;
         font-size: 10px;
       }
       .missing-tag .date-label {
@@ -867,7 +869,7 @@
       renderSummaryTable();
     };
 
-    // ✅ 新增：每周统计渲染逻辑（单表 sticky 方案 - 最终版）
+    // ✅ 新增：每周统计渲染逻辑（禁止横向滚动，内容换行）
     function renderWeekly(){
       weeklyPanel.innerHTML = '';
       
@@ -880,7 +882,7 @@
         title.textContent = `${CLASS_LABEL[cls]} 近 7 个有效未交日统计`;
         block.appendChild(title);
 
-        // ✅ 单个表格容器
+        // ✅ 单个表格容器 - 禁止横向滚动
         const wrapper = document.createElement('div');
         wrapper.className = 'weekly-table-wrapper';
         
